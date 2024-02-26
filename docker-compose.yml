@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  www2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: www2
+    restart: always
+    volumes:
+    - "./logs/:/python-docker/logs/"
+    #- "/root/www2/logs/:/python-docker/logs/"
+    ports:
+    - 5001:5000
+    labels:
+    - traefik.enable=true
+    - traefik.http.routers.www2.rule=( Host(`www.yourdomain.com`) || Host(`yourdomain.com`) ) && Path(`/nic/update`)
+    - traefik.http.routers.www2.tls=true
+    - traefik.http.routers.www2.tls.certresolver=lets-encrypt
+    - traefik.port=80
+    networks:
+    - web
+    - internal
+
+networks:
+  web:
+    external: true
+  internal:
+    external: false
