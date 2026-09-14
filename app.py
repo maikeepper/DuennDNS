@@ -39,10 +39,11 @@ def nic_update():
     authorization_header = { 'Authorization': f'Bearer {ACCESS_TOKEN}' }
     # get usg ID from list-ids.sh
     try:
-        usg_id_records = requests.get(LIST_IDS_URL, headers = authorization_header).json()
+        resp = requests.get(LIST_IDS_URL, headers = authorization_header)
+        usg_id_records = resp.json()
     except json.JSONDecodeError:
         logger.error('Can not list ids')
-        sendErrorMail( 'Kein valides JSON von ' + LIST_IDS_URL + ' zurueckbekommen.' )
+        sendErrorMail( 'Kein valides JSON von ' + LIST_IDS_URL + ' zurueckbekommen: ' + resp.text )
         abort(422)
 
     try:
@@ -52,10 +53,11 @@ def nic_update():
                 break
     except KeyError:
         sendErrorMail( 'Keine domain_records von ' + LIST_IDS_URL + ' zurueckbekommen: ' + json.dumps( usg_id_records ) )
-
+        abort(422)
+        
     logger.debug(f'Result: {usg_id}')
 
-    # update record
+    # Update record
     update_data = json.dumps({ 'data': f'{my_ip}' })
     response = requests.put(UPDATE_URL + f'{usg_id}', headers = authorization_header, data = update_data)
     response_content = json.loads(response.content.decode('utf-8'))
@@ -64,7 +66,7 @@ def nic_update():
         logger.error(f'  response -> [{response.status_code}] {response_content}')
         sendErrorMail(f'Update-URL: {UPDATE_URL}{usg_id} -> [{response.status_code}] {response_content}')
         return abort(response.status_code, response_content['message'])
-    
+
     return response_content
 
 

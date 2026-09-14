@@ -26,5 +26,14 @@ tail -f logs/duennDns.log
 # Client request
 Basic Authorization siehe app.py
 ```
-GET https://www.yourdomain.com/nic/update?myip=123.45.678.9
+GET https://www.contio.eu/nic/update?myip=123.45.678.9
+```
+
+# Key ersetzen
+- Key in Postman testen (LIST_ID_URLS + Bearer Token im Authorization Header)
+- Key in app.py ersetzen
+```
+docker stop www2
+docker build www2
+docker compose up -d
 ```
